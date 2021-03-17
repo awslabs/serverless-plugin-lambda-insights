@@ -1,0 +1,43 @@
+{
+  "name": "serverless-plugin-lambda-insights",
+  "version": "1.0.2",
+  "description": "A Serverless Framework Plugin allowing to enable Lambda Insights for entire Serverless stack or individual functions",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/awslabs/serverless-plugin-lambda-insights.git"
+  },
+  "keywords": [
+    "serverless",
+    "aws",
+    "Serverless Plugin",
+    "Lambda Insights",
+    "Metric"
+  ],
+  "author": {
+    "name": "Amazon Web Services",
+    "url": "https://aws.amazon.com"
+  },
+  "license": "MIT-0",
+  "bugs": {
+    "url": "https://github.com/awslabs/serverless-plugin-lambda-insights/issues"
+  },
+  "homepage": "https://github.com/awslabs/serverless-plugin-lambda-insights#readme",
+  "devDependencies": {
+    "eslint": "^7.19.0",
+    "eslint-config-google": "^0.14.0",
+    "husky": "^4.3.8",
+    "lint-staged": "^10.5.3"
+  },
+  "lint-staged": {
+    "*.js": "eslint"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+test/
+coverage/
+example/
+.editorconfig
+.eslintignore
+.eslintrc
+.eslintrc.json
+.github
+.gitignore
+.npmignore
+.travis.yml
+

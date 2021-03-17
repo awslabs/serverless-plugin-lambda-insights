@@ -1,0 +1,19 @@
+service: testService
+
+frameworkVersion: '2'
+
+plugins:
+  - ./../index.js
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+functions:
+  hello:
+    handler: handler.hello
+    lambdaInsights: true
+
+custom:
+  lambdaInsights: 
+    lambdaInsightsVersion: 14 #specify the Layer Version
