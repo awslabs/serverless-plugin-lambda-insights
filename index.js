@@ -135,11 +135,11 @@ class AddLambdaInsights {
         null;
 
     const attachPolicy =
-      customLambdaInsights && customLambdaInsights.attachPolicy ?
+      customLambdaInsights && customLambdaInsights.hasOwnProperty('attachPolicy') ?
         this.checkLambdaInsightsType(
             customLambdaInsights.attachPolicy,
         ) :
-        true; // REVIEW: Shouldn't this be false? customLambdaInsights.attachPolicy = false => attachPolicy = true
+        true;
 
     const layerVersion =
       customLambdaInsights && customLambdaInsights.lambdaInsightsVersion ?
