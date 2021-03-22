@@ -7,7 +7,7 @@ const layerVersions = [2, 11, 12, 14];
 const layerArn = (region, version) =>
   `arn:aws:lambda:${region}:580247275435:layer:LambdaInsightsExtension:${version}`;
 
-const lambdaInsightsManagedPolicy = `arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy`;
+const lambdaInsightsManagedPolicy = 'arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy';
 
 /**
  * Serverless Lambda Insights Plugin - serverless-plugin-lambda-insights
@@ -46,7 +46,7 @@ class AddLambdaInsights {
   }
 
   /**
-   * Check if Lambda Insights parameter is type of Boolean
+   * Check if Lambda Insights parameter is of type Boolean
    * @param  {any} value Value to check
    * @return {boolean} return input value if boolean
    */
@@ -55,7 +55,7 @@ class AddLambdaInsights {
       return value;
     } else {
       throw new Error(
-          `LambdaInsights and DefaultLambdaInsights values must be set to either true or false.`,
+          'LambdaInsights and DefaultLambdaInsights values must be set to either true or false.',
       );
     }
   }
@@ -139,7 +139,7 @@ class AddLambdaInsights {
         this.checkLambdaInsightsType(
             customLambdaInsights.attachPolicy,
         ) :
-        true;
+        true; // REVIEW: Shouldn't this be false? customLambdaInsights.attachPolicy = false => attachPolicy = true
 
     const layerVersion =
       customLambdaInsights && customLambdaInsights.lambdaInsightsVersion ?
