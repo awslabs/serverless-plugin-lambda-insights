@@ -91,7 +91,7 @@ This will deploy a hello-world Lambda function with Lambda Insights enabled.
 
 ## Want to contribute?
 
-This is your repo - just go head and create a pull request. See also [CONTRIBUTING] (CONTRIBUTING) for more introductions.
+This is your repo - just go head and create a pull request. See also [CONTRIBUTING](CONTRIBUTING.md) for more introductions.
 
 Some open Ideas and Tasks:
 
