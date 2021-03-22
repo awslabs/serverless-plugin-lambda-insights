@@ -2,10 +2,23 @@
 
 // Lambda Insight Layer Versions
 // see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html
-const latestLayerVersion = 14;
-const layerVersions = [2, 11, 12, 14];
-const layerArn = (region, version) =>
-  `arn:aws:lambda:${region}:580247275435:layer:LambdaInsightsExtension:${version}`;
+const layerVersions = require('./layerVersions.json');
+
+const layerArn = (region, version) => {
+  if (version) {
+    // TODO: this does not appropriately handle non 'aws' partitions
+    return `arn:aws:lambda:${region}:580247275435:layer:LambdaInsightsExtension:${version}`;
+  }
+
+  const arn = layerVersions[region];
+  if (!arn) {
+    throw new Error(
+        `Unknown latest version for region '${region}'. ` +
+        `Check the Lambda Insights documentation to get the list of currently supported versions.`);
+  }
+  return arn;
+};
+
 
 const lambdaInsightsManagedPolicy = 'arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy';
 
@@ -106,7 +119,7 @@ class AddLambdaInsights {
         fn.layers.push(
             layerArn(
                 this.provider.getRegion(),
-                layerVersion || latestLayerVersion,
+                layerVersion,
             ),
         );
         policyToggle = true;
