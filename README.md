@@ -5,9 +5,9 @@ A Serverless Framework Plugin allowing to enable Lambda Insights
 ![npm](https://img.shields.io/npm/v/serverless-plugin-lambda-insights)
 ![npm](https://img.shields.io/npm/dw/serverless-plugin-lambda-insights)
 
-Enables AWS Lambda Insights (https://aws.amazon.com/blogs/mt/introducing-cloudwatch-lambda-insights/) for the entire Serverless stack or individual functions.
+Enables AWS Lambda Insights (https://aws.amazon.com/blogs/mt/introducing-cloudwatch-lambda-insights/) for the entire Serverless stack functions or individual functions.
 
-## Why using Lambda Insights
+## Why use Lambda Insights
 
 > _CloudWatch Lambda Insights_ is a monitoring and troubleshooting solution for serverless applications running on AWS Lambda. The solution collects, aggregates, and summarizes system-level metrics including CPU time, memory, disk, and network. It also collects, aggregates, and summarizes diagnostic information such as cold starts and Lambda worker shutdowns to help you isolate issues with your Lambda functions and resolve them quickly.
 
@@ -66,26 +66,26 @@ plugins:
 
 functions:
   mainFunction: #inherits tracing settings from "provider"
-    lambdaInsights: true #turns on Lambda Insights for this function
+    lambdaInsights: true #enables Lambda Insights for this function
     handler: src/app/index.handler
   secondFunction: #inherits tracing settings from "provider"
-    lambdaInsights: false #turns off Lambda Insights for this function, will overrule custom settings
+    lambdaInsights: false #disables Lambda Insights for this function, will overrule custom settings
     handler: src/app/index.handler
 
 custom:
   lambdaInsights:
-    defaultLambdaInsights: true #turn on Lambda Insights for all your function, if
+    defaultLambdaInsights: true #enables Lambda Insights for all your functions, if
     attachPolicy: false #explicitly disable auto attachment Managed Policy.
     lambdaInsightsVersion: 14 #specify the Layer Version
 ```
 
 ### Example
 
-You can find an example in the example folder of this repository. Run it with the following comment.
+You can find an example in the example folder of this repository. Run it with the following command.
 
 `cd example; serverless deploy`
 
-This will deploy a hallo-world Lambda function with Lambda Insights enables.
+This will deploy a hello-world Lambda function with Lambda Insights enabled.
 
 ---
 
