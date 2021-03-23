@@ -84,9 +84,13 @@ class AddLambdaInsights {
         });
         return layerVersionInfo.LayerVersionArn;
       } catch (err) {
-        throw new Error(
-            `LambdaInsights layer version '${version}' ` +
+        if (err.code==='AccessDeniedException') {
+          throw new Error(
+              `LambdaInsights layer version '${version}' ` +
             `does not exist within your region '${this.region}'.`);
+        } else {
+          throw err;
+        }
       }
     }
 
