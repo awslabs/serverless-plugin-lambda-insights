@@ -34,15 +34,9 @@ test('addLambdaInsights throws for unknown region', async () => {
   // act
   const task = () => plugin.addLambdaInsights();
 
-  // assert
-  try {
-    await task();
-    throw new Error('This Error should not happen.');
-  } catch (error) {
-    expect(error.message)
-        .toBe('Unknown latest version for region \'not-a-region-1\'. ' +
-        'Check the Lambda Insights documentation to get the list of currently supported versions.');
-  }
+  await expect(task).rejects
+      .toThrow('Unknown latest version for region \'not-a-region-1\'. ' +
+   'Check the Lambda Insights documentation to get the list of currently supported versions.');
 });
 
 test('addLambdaInsights throws invalid lambdaInsightsVersion argument', async () => {
@@ -54,13 +48,8 @@ test('addLambdaInsights throws invalid lambdaInsightsVersion argument', async ()
   const task = () => plugin.addLambdaInsights();
 
   // assert
-  try {
-    await task();
-    throw new Error('This Error should not happen.');
-  } catch (error) {
-    expect(error.message)
-        .toBe('LambdaInsights layer version must be a number.');
-  }
+  await expect(task)
+      .toThrow('lambdaInsightsVersion version must be a number.');
 });
 
 test('addLambdaInsights throws for invalid region version combination', async () => {
@@ -72,13 +61,8 @@ test('addLambdaInsights throws for invalid region version combination', async ()
   const task = () => plugin.addLambdaInsights();
 
   // assert
-  try {
-    await task();
-    throw new Error('This Error should not happen.');
-  } catch (error) {
-    expect(error.message)
-        .toBe('LambdaInsights layer version \'55555\' does not exist within your region \'not-a-region-1\'.');
-  }
+  await expect(task).rejects
+      .toThrow('LambdaInsights layer version \'55555\' does not exist within your region \'not-a-region-1\'.');
 });
 
 

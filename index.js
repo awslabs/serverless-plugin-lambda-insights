@@ -67,7 +67,7 @@ class AddLambdaInsights {
     if (typeof value === 'number') {
       return value;
     } else {
-      throw new Error(`LambdaInsights layer version must be a number.`);
+      throw new Error('lambdaInsightsVersion version must be a number.');
     }
   }
 
