@@ -109,39 +109,42 @@ class AddLambdaInsights {
     if (typeof this.service.functions !== 'object') {
       return;
     }
+    try {
+      const layerARN = await this.generateLayerARN(layerVersion);
 
-    const layerARN = await this.generateLayerARN(layerVersion);
-
-    let policyToggle = false;
-    Object.keys(this.service.functions).forEach((functionName) => {
-      const fn = this.service.functions[functionName];
-      const localLambdaInsights = fn.hasOwnProperty('lambdaInsights') ?
+      let policyToggle = false;
+      Object.keys(this.service.functions).forEach((functionName) => {
+        const fn = this.service.functions[functionName];
+        const localLambdaInsights = fn.hasOwnProperty('lambdaInsights') ?
         this.checkLambdaInsightsType(fn.lambdaInsights) :
         null;
 
-      if (
-        localLambdaInsights === false ||
+        if (
+          localLambdaInsights === false ||
         (localLambdaInsights === null && globalLambdaInsights === null)
-      ) {
-        return;
-      }
+        ) {
+          return;
+        }
 
-      const fnLambdaInsights = localLambdaInsights || globalLambdaInsights;
+        const fnLambdaInsights = localLambdaInsights || globalLambdaInsights;
 
-      if (fnLambdaInsights) {
+        if (fnLambdaInsights) {
         // attach Lambda Layer
-        fn.layers = fn.layers || [];
-        fn.layers.push(layerARN);
-        policyToggle = true;
-      }
-    });
-    if (attachPolicy && policyToggle) {
+          fn.layers = fn.layers || [];
+          fn.layers.push(layerARN);
+          policyToggle = true;
+        }
+      });
+      if (attachPolicy && policyToggle) {
       // attach CloudWatchLambdaInsightsExecutionRolePolicy
-      this.service.provider.iamManagedPolicies =
+        this.service.provider.iamManagedPolicies =
         this.service.provider.iamManagedPolicies || [];
-      this.service.provider.iamManagedPolicies.push(lambdaInsightsManagedPolicy);
+        this.service.provider.iamManagedPolicies.push(lambdaInsightsManagedPolicy);
+      }
+      return;
+    } catch (err) {
+      throw err;
     }
-    return;
   }
 
   /**
