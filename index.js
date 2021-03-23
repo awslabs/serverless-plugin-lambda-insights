@@ -79,10 +79,10 @@ class AddLambdaInsights {
    * @return {boolean} return input value if available
    */
   checkLambdaInsightsVersion(value) {
-    if (typeof value === 'number' && layerVersions.includes(value)) {
+    if (typeof value === 'number') {
       return value;
     } else {
-      throw new Error(`LambdaInsights layer version '${value}' does not exist.`);
+      throw new Error(`LambdaInsightsVersion must be a number.`);
     }
   }
 
