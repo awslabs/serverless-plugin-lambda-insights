@@ -19,8 +19,6 @@ class AddLambdaInsights {
   constructor(serverless) {
     this.serverless = serverless;
     this.service = this.serverless.service;
-    this.provider = this.serverless.getProvider('aws');
-    this.region = this.provider.getRegion();
 
     this.hooks = {
       'before:package:setupProviderConfiguration': this.addLambdaInsights.bind(this),
@@ -156,6 +154,10 @@ class AddLambdaInsights {
    * @return {Promise} Lambda Insights Layer ARN
    */
   addLambdaInsights() {
+    // resolve provider and region properties
+    this.provider = this.serverless.getProvider('aws');
+    this.region = this.provider.getRegion();
+
     const customLambdaInsights =
       this.service.custom && this.service.custom.lambdaInsights;
 
