@@ -19,6 +19,7 @@ class AddLambdaInsights {
   constructor(serverless) {
     this.serverless = serverless;
     this.service = this.serverless.service;
+    this.provider = this.serverless.getProvider('aws');
 
     this.hooks = {
       'before:package:setupProviderConfiguration': this.addLambdaInsights.bind(this),
@@ -75,27 +76,28 @@ class AddLambdaInsights {
    * @return {string} Lambda Insights Layer ARN
    */
   async generateLayerARN(version) {
+    const region = this.provider.getRegion();
     if (version) {
       try {
         const layerVersionInfo = await this.provider.request('Lambda', 'getLayerVersionByArn', {
-          Arn: `arn:aws:lambda:${this.region}:580247275435:layer:LambdaInsightsExtension:${version}`,
+          Arn: `arn:aws:lambda:${region}:580247275435:layer:LambdaInsightsExtension:${version}`,
         });
         return layerVersionInfo.LayerVersionArn;
       } catch (err) {
         if (err.code==='AccessDeniedException') {
           throw new Error(
               `LambdaInsights layer version '${version}' ` +
-            `does not exist within your region '${this.region}'.`);
+            `does not exist within your region '${region}'.`);
         } else {
           throw err;
         }
       }
     }
 
-    const arn = layerVersions[this.region];
+    const arn = layerVersions[region];
     if (!arn) {
       throw new Error(
-          `Unknown latest version for region '${this.region}'. ` +
+          `Unknown latest version for region '${region}'. ` +
           `Check the Lambda Insights documentation to get the list of currently supported versions.`);
     }
     return arn;
@@ -154,10 +156,6 @@ class AddLambdaInsights {
    * @return {Promise} Lambda Insights Layer ARN
    */
   addLambdaInsights() {
-    // resolve provider and region properties
-    this.provider = this.serverless.getProvider('aws');
-    this.region = this.provider.getRegion();
-
     const customLambdaInsights =
       this.service.custom && this.service.custom.lambdaInsights;
 
