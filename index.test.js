@@ -54,7 +54,7 @@ test('addLambdaInsights throws invalid lambdaInsightsVersion argument', async ()
 
 test('addLambdaInsights throws for invalid region version combination', async () => {
   // arrange
-  const serverless = createServerless('not-a-region-1', 55555);
+  const serverless = createServerless('us-east-1', 55555);
   const plugin = new AddLambdaInsights(serverless);
 
   // act
@@ -62,7 +62,7 @@ test('addLambdaInsights throws for invalid region version combination', async ()
 
   // assert
   await expect(task).rejects
-      .toThrow('LambdaInsights layer version \'55555\' does not exist within your region \'not-a-region-1\'.');
+      .toThrow('LambdaInsights layer version \'55555\' does not exist within your region \'us-east-1\'.');
 });
 
 
@@ -89,7 +89,9 @@ const createServerless = (region, LayerVersion) => {
       if (param.Arn===`arn:aws:lambda:${region}:580247275435:layer:LambdaInsightsExtension:12`) {
         return {LayerVersionArn: param.Arn};
       } else {
-        throw new Error();
+        const customError = new Error();
+        customError.code = 'AccessDeniedException';
+        throw customError;
       }
     },
   };
