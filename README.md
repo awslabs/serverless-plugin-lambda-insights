@@ -95,7 +95,7 @@ This is your repo - just go head and create a pull request. See also [CONTRIBUTI
 
 Some open Ideas and Tasks:
 
-- [ ] Testing with Jest
+- [x] Testing with Jest
 - [x] Add Toggle for auto policy attachment
 - [x] Add an example
 
