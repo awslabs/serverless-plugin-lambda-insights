@@ -19,6 +19,8 @@ Enables AWS Lambda Insights (https://aws.amazon.com/blogs/mt/introducing-cloudwa
 
 ### Installation
 
+This Plugin requires a Serverless Framework version of >= 2.0.0.
+
 `npm install --save-dev serverless-plugin-lambda-insights`
 
 add Plugin to your `serverless.yml` in the plugins section.
