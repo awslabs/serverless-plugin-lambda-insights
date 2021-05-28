@@ -24,22 +24,36 @@ class AddLambdaInsights {
     this.hooks = {
       'before:package:setupProviderConfiguration': this.addLambdaInsights.bind(this),
     };
-
-    serverless.configSchemaHandler.defineFunctionProperties('aws', {
-      properties: {
-        lambdaInsights: {type: 'boolean'},
-      },
-    });
-
-    serverless.configSchemaHandler.defineCustomProperties({
-      properties: {
-        lambdaInsights: {
-          defaultLambdaInsights: {type: 'boolean'},
-          attachPolicy: {type: 'boolean'},
-          lambdaInsightsVersion: {type: 'number'},
+    if (this.checkValidationSupport(serverless)) {
+      serverless.configSchemaHandler.defineFunctionProperties('aws', {
+        properties: {
+          lambdaInsights: {type: 'boolean'},
         },
-      },
-    });
+      });
+
+      serverless.configSchemaHandler.defineCustomProperties({
+        properties: {
+          lambdaInsights: {
+            defaultLambdaInsights: {type: 'boolean'},
+            attachPolicy: {type: 'boolean'},
+            lambdaInsightsVersion: {type: 'number'},
+          },
+        },
+      });
+    }
+  }
+
+  /**
+   * Validates serverless object has required validation fields
+   * @param {any} serverless
+   * @return {boolean} Whether installed serverless fw supports validation
+   */
+  checkValidationSupport(serverless) {
+    return serverless.configSchemaHandler &&
+             serverless.configSchemaHandler.defineFunctionProperties &&
+             typeof serverless.configSchemaHandler['defineFunctionProperties'] == 'function' &&
+             serverless.configSchemaHandler.defineCustomProperties &&
+             typeof serverless.configSchemaHandler['defineCustomProperties'] == 'function';
   }
 
   /**
