@@ -28,11 +28,11 @@
   },
   "homepage": "https://github.com/awslabs/serverless-plugin-lambda-insights#readme",
   "devDependencies": {
-    "eslint": "^7.28.0",
+    "eslint": "^7.32.0",
     "eslint-config-google": "^0.14.0",
     "husky": "^6.0.0",
-    "jest": "^27.0.4",
-    "lint-staged": "^11.0.0"
+    "jest": "^27.2.4",
+    "lint-staged": "^11.1.2"
   },
   "lint-staged": {
     "*.js": "eslint"
