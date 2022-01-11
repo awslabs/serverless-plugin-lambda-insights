@@ -3,6 +3,7 @@
 // Lambda Insight Layer Versions
 // see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html
 const layerVersions = require('./layerVersions.json');
+const layerVersionsArm64 = require('./layerVersionsArm64.json');
 
 const lambdaInsightsManagedPolicy = 'arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy';
 
@@ -89,13 +90,20 @@ class AddLambdaInsights {
    * @param  {number} version Value to check
    * @return {string} Lambda Insights Layer ARN
    */
-  async generateLayerARN(version) {
+  async generateLayerARN(version, architecture) {
     const region = this.provider.getRegion();
     if (version) {
       try {
-        const layerVersionInfo = await this.provider.request('Lambda', 'getLayerVersionByArn', {
-          Arn: `arn:aws:lambda:${region}:580247275435:layer:LambdaInsightsExtension:${version}`,
-        });
+        let layerVersionInfo;
+        if ((architecture ?? this.provider.architecture) === 'arm64') {
+          layerVersionInfo = await this.provider.request('Lambda', 'getLayerVersionByArn', {
+            Arn: `arn:aws:lambda:${region}:580247275435:layer:LambdaInsightsExtension-Arm64:${version}`,
+          });
+        } else {
+          layerVersionInfo = await this.provider.request('Lambda', 'getLayerVersionByArn', {
+            Arn: `arn:aws:lambda:${region}:580247275435:layer:LambdaInsightsExtension:${version}`,
+          });
+        }
         return layerVersionInfo.LayerVersionArn;
       } catch (err) {
         if (err.code==='AccessDeniedException') {
@@ -108,7 +116,12 @@ class AddLambdaInsights {
       }
     }
 
-    const arn = layerVersions[region];
+    let arn;
+    if ((architecture ?? this.provider.architecture) === 'arm64') {
+      arn = layerVersionsArm64[region];
+    } else {
+      arn = layerVersions[region];
+    }
     if (!arn) {
       throw new Error(
           `Unknown latest version for region '${region}'. ` +
@@ -128,18 +141,19 @@ class AddLambdaInsights {
       return;
     }
     try {
-      const layerARN = await this.generateLayerARN(layerVersion);
 
       let policyToggle = false;
-      Object.keys(this.service.functions).forEach((functionName) => {
+      const functions = Object.keys(this.service.functions);
+      for (const functionName of functions) {
         const fn = this.service.functions[functionName];
+        const layerARN = await this.generateLayerARN(layerVersion, fn.architecture);
         const localLambdaInsights = fn.hasOwnProperty('lambdaInsights') ?
-        this.checkLambdaInsightsType(fn.lambdaInsights) :
-        null;
+          this.checkLambdaInsightsType(fn.lambdaInsights) :
+          null;
 
         if (
           localLambdaInsights === false ||
-        (localLambdaInsights === null && globalLambdaInsights === null)
+          (localLambdaInsights === null && globalLambdaInsights === null)
         ) {
           return;
         }
@@ -147,12 +161,12 @@ class AddLambdaInsights {
         const fnLambdaInsights = localLambdaInsights || globalLambdaInsights;
 
         if (fnLambdaInsights) {
-        // attach Lambda Layer
+          // attach Lambda Layer
           fn.layers = fn.layers || [];
           fn.layers.push(layerARN);
           policyToggle = true;
         }
-      });
+      };
       if (attachPolicy && policyToggle) {
       // attach CloudWatchLambdaInsightsExecutionRolePolicy
         this.service.provider.iamManagedPolicies =

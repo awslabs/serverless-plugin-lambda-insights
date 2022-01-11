@@ -13,6 +13,54 @@ test('addLambdaInsights associates latest ARN', async () => {
       .toStrictEqual(['arn:aws:lambda:us-east-1:580247275435:layer:LambdaInsightsExtension:14']);
 });
 
+test('generateLayerArn defaults to global provider architecture to associates latest ARN for Arm64', async () => {
+  // arrange
+  const serverless = createServerless('us-east-1');
+  serverless.service.provider.architecture = 'arm64';
+  const plugin = new AddLambdaInsights(serverless);
+
+  // act
+  await plugin.addLambdaInsights();
+
+  // assert
+  expect(plugin.serverless.service.functions.myFunction.layers)
+      .toStrictEqual(['arn:aws:lambda:us-east-1:580247275435:layer:LambdaInsightsExtension-Arm64:1']);
+});
+
+test('generateLayerArn local function architecture overwrites global setting to associates latest ARN for Arm64', async () => {
+  // arrange
+  const serverless = createServerless('us-east-1');
+  serverless.service.functions.myFunction.architecture = 'arm64';
+  const plugin = new AddLambdaInsights(serverless);
+
+  // act
+  await plugin.addLambdaInsights();
+
+  // assert
+  expect(plugin.serverless.service.functions.myFunction.layers)
+      .toStrictEqual(['arn:aws:lambda:us-east-1:580247275435:layer:LambdaInsightsExtension-Arm64:1']);
+});
+
+test('generateLayerArn supports multi architecture setting to associate latest ARN', async () => {
+  // arrange
+  const serverless = createServerless('us-east-1');
+  serverless.service.functions.myArm64Function = {
+    lambdaInsights: true,
+    handler: 'handler.hello',
+    architecture: 'arm64',
+  };
+  const plugin = new AddLambdaInsights(serverless);
+
+  // act
+  await plugin.addLambdaInsights();
+
+  // assert
+  expect(plugin.serverless.service.functions.myFunction.layers)
+      .toStrictEqual(['arn:aws:lambda:us-east-1:580247275435:layer:LambdaInsightsExtension:14']);
+  expect(plugin.serverless.service.functions.myArm64Function.layers)
+      .toStrictEqual(['arn:aws:lambda:us-east-1:580247275435:layer:LambdaInsightsExtension-Arm64:1']);
+});
+
 test('addLambdaInsights associates correct explicit layer version', async () => {
   // arrange
   const serverless = createServerless('us-east-1', 12);
@@ -117,4 +165,3 @@ const createServerless = (region, LayerVersion) => {
     },
   };
 };
-
