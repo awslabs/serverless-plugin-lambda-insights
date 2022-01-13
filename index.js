@@ -95,7 +95,7 @@ class AddLambdaInsights {
     if (version) {
       try {
         let layerVersionInfo;
-        if ((architecture ?? this.provider.architecture) === 'arm64') {
+        if (architecture === 'arm64' || this.provider.architecture === 'arm64') {
           layerVersionInfo = await this.provider.request('Lambda', 'getLayerVersionByArn', {
             Arn: `arn:aws:lambda:${region}:580247275435:layer:LambdaInsightsExtension-Arm64:${version}`,
           });
@@ -117,7 +117,7 @@ class AddLambdaInsights {
     }
 
     let arn;
-    if ((architecture ?? this.provider.architecture) === 'arm64') {
+    if (architecture === 'arm64' || this.provider.architecture === 'arm64') {
       arn = layerVersionsArm64[region];
     } else {
       arn = layerVersions[region];
