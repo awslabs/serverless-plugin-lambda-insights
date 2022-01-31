@@ -35,9 +35,12 @@ class AddLambdaInsights {
       serverless.configSchemaHandler.defineCustomProperties({
         properties: {
           lambdaInsights: {
-            defaultLambdaInsights: {type: 'boolean'},
-            attachPolicy: {type: 'boolean'},
-            lambdaInsightsVersion: {type: 'number'},
+            type: 'object',
+            properties: {
+              defaultLambdaInsights: {type: 'boolean'},
+              attachPolicy: {type: 'boolean'},
+              lambdaInsightsVersion: {type: 'number'},
+            }
           },
         },
       });
