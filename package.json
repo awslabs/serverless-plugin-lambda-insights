@@ -1,6 +1,6 @@
 {
   "name": "serverless-plugin-lambda-insights",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "A Serverless Framework Plugin allowing to enable Lambda Insights for entire Serverless stack or individual functions",
   "main": "index.js",
   "scripts": {
