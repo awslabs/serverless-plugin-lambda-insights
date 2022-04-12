@@ -158,7 +158,7 @@ class AddLambdaInsights {
           localLambdaInsights === false ||
           (localLambdaInsights === null && globalLambdaInsights === null)
         ) {
-          return;
+          continue;
         }
 
         const fnLambdaInsights = localLambdaInsights || globalLambdaInsights;
