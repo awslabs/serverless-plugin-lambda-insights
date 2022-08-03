@@ -21,7 +21,7 @@ class AddLambdaInsights {
     this.serverless = serverless;
     this.service = this.serverless.service;
     this.provider = this.serverless.getProvider('aws');
-
+    
     this.hooks = {
       'before:package:setupProviderConfiguration': this.addLambdaInsights.bind(this),
     };
@@ -95,10 +95,11 @@ class AddLambdaInsights {
    */
   async generateLayerARN(version, architecture) {
     const region = this.provider.getRegion();
+    const isArm64 = architecture === 'arm64' || this.service.provider.architecture === 'arm64';
     if (version) {
       try {
         let layerVersionInfo;
-        if (architecture === 'arm64' || this.provider.architecture === 'arm64') {
+        if (isArm64) {
           layerVersionInfo = await this.provider.request('Lambda', 'getLayerVersionByArn', {
             Arn: `arn:aws:lambda:${region}:580247275435:layer:LambdaInsightsExtension-Arm64:${version}`,
           });
@@ -120,7 +121,7 @@ class AddLambdaInsights {
     }
 
     let arn;
-    if (architecture === 'arm64' || this.provider.architecture === 'arm64') {
+    if (isArm64) {
       arn = layerVersionsArm64[region];
     } else {
       arn = layerVersions[region];
