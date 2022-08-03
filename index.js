@@ -21,7 +21,6 @@ class AddLambdaInsights {
     this.serverless = serverless;
     this.service = this.serverless.service;
     this.provider = this.serverless.getProvider('aws');
-    
     this.hooks = {
       'before:package:setupProviderConfiguration': this.addLambdaInsights.bind(this),
     };
