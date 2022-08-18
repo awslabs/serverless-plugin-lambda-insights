@@ -122,16 +122,15 @@ test('addLambdaInsights adds IAM policy', async () => {
   // act
   await plugin.addLambdaInsights();
 
-  // assert
-  expect(plugin.provider.iamManagedPolicies)
+  // assert 
+  expect(plugin.service.provider.iamManagedPolicies)
       .toStrictEqual(['arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy']);
 });
 
 
 const createServerless = (region, LayerVersion) => {
-  const provider = {
+  const awsProvider = {
     getRegion: () => region,
-    iamManagedPolicies: [],
     request: async (service, method, param) => {
       // explicit layer version test is only valid for version 12
       if (param.Arn===`arn:aws:lambda:${region}:580247275435:layer:LambdaInsightsExtension:12`) {
@@ -144,13 +143,17 @@ const createServerless = (region, LayerVersion) => {
     },
   };
   return {
-    getProvider: () => provider,
+    getProvider: () => awsProvider,
     configSchemaHandler: {
       defineFunctionProperties: () => jest.fn(),
       defineCustomProperties: () => jest.fn(),
     },
     service: {
-      provider,
+      provider: {
+        name: 'aws',
+        runtime: 'nodejs12.x',
+        architecture: 'x86_64',
+      },
       custom: {
         lambdaInsights: {
           lambdaInsightsVersion: LayerVersion,
