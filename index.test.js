@@ -10,7 +10,7 @@ test('addLambdaInsights associates latest ARN', async () => {
 
   // assert
   expect(plugin.serverless.service.functions.myFunction.layers)
-      .toStrictEqual(['arn:aws:lambda:us-east-1:580247275435:layer:LambdaInsightsExtension:14']);
+      .toStrictEqual(['arn:aws:lambda:us-east-1:580247275435:layer:LambdaInsightsExtension:35']);
 });
 
 test('generateLayerArn defaults to global provider architecture to associates latest ARN for Arm64', async () => {
@@ -56,7 +56,7 @@ test('generateLayerArn supports multi architecture setting to associate latest A
 
   // assert
   expect(plugin.serverless.service.functions.myFunction.layers)
-      .toStrictEqual(['arn:aws:lambda:us-east-1:580247275435:layer:LambdaInsightsExtension:14']);
+      .toStrictEqual(['arn:aws:lambda:us-east-1:580247275435:layer:LambdaInsightsExtension:35']);
   expect(plugin.serverless.service.functions.myArm64Function.layers)
       .toStrictEqual(['arn:aws:lambda:us-east-1:580247275435:layer:LambdaInsightsExtension-Arm64:2']);
 });

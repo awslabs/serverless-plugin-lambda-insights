@@ -1,6 +1,6 @@
 service: testService
 
-frameworkVersion: '2'
+frameworkVersion: '3'
 
 plugins:
   - ./../index.js
@@ -13,7 +13,8 @@ functions:
   hello:
     handler: handler.hello
     lambdaInsights: true
+    architecture: x86_64
 
 custom:
   lambdaInsights: 
-    lambdaInsightsVersion: 14 #specify the Layer Version
+    lambdaInsightsVersion: 35 #specify the Layer Version
