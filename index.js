@@ -94,7 +94,7 @@ class AddLambdaInsights {
    */
   async generateLayerARN(version, architecture) {
     const region = this.provider.getRegion();
-    const isArm64 = architecture === 'arm64' || this.service.provider.architecture === 'arm64';
+    const isArm64 = architecture ? architecture === 'arm64' : this.service.provider.architecture === 'arm64';
     if (version) {
       try {
         let layerVersionInfo;
