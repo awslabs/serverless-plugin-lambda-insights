@@ -144,8 +144,15 @@ class AddLambdaInsights {
       return;
     }
     try {
-
       let policyToggle = false;
+
+      if (globalLambdaInsights) {
+        const layerARN = await this.generateLayerARN(layerVersion);
+        this.provider.layers = this.provider.layers || [];
+        this.provider.layers.push(layerARN);
+        policyToggle = true;
+      }
+      
       const functions = Object.keys(this.service.functions);
       for (const functionName of functions) {
         const fn = this.service.functions[functionName];
