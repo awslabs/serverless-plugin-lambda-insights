@@ -145,6 +145,12 @@ class AddLambdaInsights {
     }
     try {
 
+      if (customLambdaInsights && customLambdaInsights.defaultLambdaInsights) {
+        const layerARN = await this.generateLayerARN(layerVersion);
+        this.provider.layers = this.provider.layers || [];
+        this.provider.layers.push(layerARN)
+      }
+
       let policyToggle = false;
       const functions = Object.keys(this.service.functions);
       for (const functionName of functions) {
