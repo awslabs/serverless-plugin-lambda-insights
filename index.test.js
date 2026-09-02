@@ -27,7 +27,8 @@ test('generateLayerArn defaults to global provider architecture to associates la
       .toStrictEqual(['arn:aws:lambda:us-east-1:580247275435:layer:LambdaInsightsExtension-Arm64:2']);
 });
 
-test('generateLayerArn local function architecture overwrites global setting to associates latest ARN for Arm64', async () => {
+test('generateLayerArn local function architecture overwrites global setting' +
+    ' to associates latest ARN for Arm64', async () => {
   // arrange
   const serverless = createServerless('us-east-1');
   serverless.service.functions.myFunction.architecture = 'arm64';
@@ -74,6 +75,19 @@ test('addLambdaInsights associates correct explicit layer version', async () => 
       .toStrictEqual(['arn:aws:lambda:us-east-1:580247275435:layer:LambdaInsightsExtension:12']);
 });
 
+test('addLambdaInsights uses custom account when explicit version is set', async () => {
+  // arrange
+  const serverless = createServerless('us-east-1', 12, '123456789012');
+  const plugin = new AddLambdaInsights(serverless);
+
+  // act
+  await plugin.addLambdaInsights();
+
+  // assert
+  expect(plugin.serverless.service.functions.myFunction.layers)
+      .toStrictEqual(['arn:aws:lambda:us-east-1:123456789012:layer:LambdaInsightsExtension:12']);
+});
+
 test('addLambdaInsights throws for unknown region', async () => {
   // arrange
   const serverless = createServerless('not-a-region-1');
@@ -100,6 +114,19 @@ test('addLambdaInsights throws invalid lambdaInsightsVersion argument', async ()
       .toThrow('lambdaInsightsVersion version must be a number.');
 });
 
+test('addLambdaInsights throws invalid lambdaInsightsAccount argument', async () => {
+  // arrange
+  const serverless = createServerless('us-east-1', undefined, 12345);
+  const plugin = new AddLambdaInsights(serverless);
+
+  // act
+  const task = () => plugin.addLambdaInsights();
+
+  // assert
+  await expect(task)
+      .toThrow('lambdaInsightsAccount must be a string.');
+});
+
 test('addLambdaInsights throws for invalid region version combination', async () => {
   // arrange
   const serverless = createServerless('us-east-1', 55555);
@@ -122,18 +149,21 @@ test('addLambdaInsights adds IAM policy', async () => {
   // act
   await plugin.addLambdaInsights();
 
-  // assert 
+  // assert
   expect(plugin.service.provider.iamManagedPolicies)
       .toStrictEqual(['arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy']);
 });
 
 
-const createServerless = (region, LayerVersion) => {
+const createServerless = (region, LayerVersion, LambdaInsightsAccount) => {
   const awsProvider = {
     getRegion: () => region,
     request: async (service, method, param) => {
-      // explicit layer version test is only valid for version 12
-      if (param.Arn===`arn:aws:lambda:${region}:580247275435:layer:LambdaInsightsExtension:12`) {
+      // explicit layer version test is valid for version 12 with any account
+      const arnPattern = new RegExp(
+          `^arn:aws:lambda:${region}:\\d+:layer:LambdaInsightsExtension(-Arm64)?:12$`,
+      );
+      if (arnPattern.test(param.Arn)) {
         return {LayerVersionArn: param.Arn};
       } else {
         const customError = new Error();
@@ -142,6 +172,14 @@ const createServerless = (region, LayerVersion) => {
       }
     },
   };
+
+  const lambdaInsightsConfig = {
+    lambdaInsightsVersion: LayerVersion,
+  };
+  if (LambdaInsightsAccount !== undefined) {
+    lambdaInsightsConfig.lambdaInsightsAccount = LambdaInsightsAccount;
+  }
+
   return {
     getProvider: () => awsProvider,
     configSchemaHandler: {
@@ -155,9 +193,7 @@ const createServerless = (region, LayerVersion) => {
         architecture: 'x86_64',
       },
       custom: {
-        lambdaInsights: {
-          lambdaInsightsVersion: LayerVersion,
-        },
+        lambdaInsights: lambdaInsightsConfig,
       },
       functions: {
         myFunction: {

@@ -7,6 +7,10 @@ const layerVersionsArm64 = require('./layerVersionsArm64.json');
 
 const lambdaInsightsManagedPolicy = 'arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy';
 
+// Default AWS account owning the Lambda Insights layer in most regions
+// see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versionsx86-64.html
+const defaultLambdaInsightsAccount = '580247275435';
+
 /**
  * Serverless Lambda Insights Plugin - serverless-plugin-lambda-insights
  * @class AddLambdaInsights
@@ -39,7 +43,8 @@ class AddLambdaInsights {
               defaultLambdaInsights: {type: 'boolean'},
               attachPolicy: {type: 'boolean'},
               lambdaInsightsVersion: {type: 'number'},
-            }
+              lambdaInsightsAccount: {type: 'string'},
+            },
           },
         },
       });
@@ -88,23 +93,39 @@ class AddLambdaInsights {
   }
 
   /**
+   * Check if Lambda Insights Account is valid
+   * @param  {any} value Value to check
+   * @return {string} return input value if a string
+   */
+  checkLambdaInsightsAccount(value) {
+    if (typeof value === 'string') {
+      return value;
+    } else {
+      throw new Error('lambdaInsightsAccount must be a string.');
+    }
+  }
+
+  /**
    * Generates a valid Lambda Insights Layer ARN for your Region
    * @param  {number} version Value to check
+   * @param  {string} architecture Function architecture
+   * @param  {string} account AWS account ID for the layer
    * @return {string} Lambda Insights Layer ARN
    */
-  async generateLayerARN(version, architecture) {
+  async generateLayerARN(version, architecture, account) {
     const region = this.provider.getRegion();
     const isArm64 = architecture ? architecture === 'arm64' : this.service.provider.architecture === 'arm64';
     if (version) {
+      const layerAccount = account || defaultLambdaInsightsAccount;
       try {
         let layerVersionInfo;
         if (isArm64) {
           layerVersionInfo = await this.provider.request('Lambda', 'getLayerVersionByArn', {
-            Arn: `arn:aws:lambda:${region}:580247275435:layer:LambdaInsightsExtension-Arm64:${version}`,
+            Arn: `arn:aws:lambda:${region}:${layerAccount}:layer:LambdaInsightsExtension-Arm64:${version}`,
           });
         } else {
           layerVersionInfo = await this.provider.request('Lambda', 'getLayerVersionByArn', {
-            Arn: `arn:aws:lambda:${region}:580247275435:layer:LambdaInsightsExtension:${version}`,
+            Arn: `arn:aws:lambda:${region}:${layerAccount}:layer:LambdaInsightsExtension:${version}`,
           });
         }
         return layerVersionInfo.LayerVersionArn;
@@ -138,18 +159,18 @@ class AddLambdaInsights {
    * @param  {boolean} globalLambdaInsights global settings
    * @param  {number} layerVersion global layerVersion settings
    * @param  {boolean} attachPolicy global attachPolicy settings
+   * @param  {string} layerAccount AWS account ID for the Lambda Insights layer
    */
-  async addLambdaInsightsToFunctions(globalLambdaInsights, layerVersion, attachPolicy) {
+  async addLambdaInsightsToFunctions(globalLambdaInsights, layerVersion, attachPolicy, layerAccount) {
     if (typeof this.service.functions !== 'object') {
       return;
     }
     try {
-
       let policyToggle = false;
       const functions = Object.keys(this.service.functions);
       for (const functionName of functions) {
         const fn = this.service.functions[functionName];
-        const layerARN = await this.generateLayerARN(layerVersion, fn.architecture);
+        const layerARN = await this.generateLayerARN(layerVersion, fn.architecture, layerAccount);
         const localLambdaInsights = fn.hasOwnProperty('lambdaInsights') ?
           this.checkLambdaInsightsType(fn.lambdaInsights) :
           null;
@@ -211,7 +232,14 @@ class AddLambdaInsights {
         ) :
         null;
 
-    return this.addLambdaInsightsToFunctions(globalLambdaInsights, layerVersion, attachPolicy);
+    const layerAccount =
+      customLambdaInsights && customLambdaInsights.lambdaInsightsAccount ?
+        this.checkLambdaInsightsAccount(
+            customLambdaInsights.lambdaInsightsAccount,
+        ) :
+        null;
+
+    return this.addLambdaInsightsToFunctions(globalLambdaInsights, layerVersion, attachPolicy, layerAccount);
   }
 }
 

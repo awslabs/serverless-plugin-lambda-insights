@@ -79,7 +79,10 @@ custom:
     defaultLambdaInsights: true #enables Lambda Insights for all your functions, if
     attachPolicy: false #explicitly disable auto attachment Managed Policy.
     lambdaInsightsVersion: 14 #specify the Layer Version
+    lambdaInsightsAccount: '580247275435' #override the AWS account ID owning the Lambda Insights layer (see note below)
 ```
+
+**Note on `lambdaInsightsAccount`:** This setting only takes effect when `lambdaInsightsVersion` is explicitly set. It overrides the AWS account ID used to construct the Lambda Insights layer ARN. When no explicit version is set, the plugin resolves the layer ARN from its bundled mappings, which already contain the correct per-region accounts. You can find the per-region account IDs in the [AWS documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versionsx86-64.html).
 
 ### Example
 
